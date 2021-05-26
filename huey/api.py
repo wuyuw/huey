@@ -161,6 +161,7 @@ class Huey(object):
 
     def task(self, retries=0, retry_delay=0, priority=None, context=False,
              name=None, **kwargs):
+        # 任务装饰器
         def decorator(func):
             return TaskWrapper(
                 self,

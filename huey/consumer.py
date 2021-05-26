@@ -104,6 +104,7 @@ class Worker(BaseProcess):
                 self._logger.exception('shutdown hook "%s" failed', name)
 
     def loop(self, now=None):
+        # 从队列获取任务并执行
         task = None
         try:
             task = self.huey.dequeue()
@@ -156,10 +157,12 @@ class Scheduler(BaseProcess):
             return
 
         try:
+            # 从storage中读取当前时间前的所有任务
             task_list = self.huey.read_schedule(now)
         except Exception:
             self._logger.exception('Error reading schedule.')
         else:
+            # 任务依次加入队列
             for task in task_list:
                 self._logger.debug('Enqueueing %s', task)
                 self.huey.enqueue(task)
@@ -387,7 +390,9 @@ class Consumer(object):
         self._logger.info('\n'.join(msg))
 
         # Start the scheduler and workers.
+        # 启动调度器进程
         self.scheduler.start()
+        # 启动worker进程
         for _, worker_process in self.worker_threads:
             worker_process.start()
 
